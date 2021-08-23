@@ -5,16 +5,6 @@ import BreakTime from "../BreakTime";
 import Timer from "../Timer";
 import Subtitle from "../Subtitle";
 
-// These functions are defined outside of the component to insure they do not have access to state
-// and are, therefore more likely to be pure.
-
-/**
- * Update the session state with new state after each tick of the interval.
- * @param prevState
- *  the previous session state
- * @returns
- *  new session state with timing information updated.
- */
 function nextTick(prevState) {
   const timeRemaining = Math.max(0, prevState.timeRemaining - 1);
   return {
@@ -26,19 +16,8 @@ function nextTick(prevState) {
 function fmtMSS(s) {
   return (s - (s %= 60)) / 60 + (9 < s ? ":" : ":0") + s;
 }
-/**
- * Higher order function that returns a function to update the session state with the next session type upon timeout.
- * @param focusDuration
- *    the current focus duration
- * @param breakDuration
- *    the current break duration
- * @returns
- *  function to update the session state.
- */
+
 function nextSession(focusDuration, breakDuration) {
-  /**
-   * State function to transition the current session type to the next session. e.g. On Break -> Focusing or Focusing -> On Break
-   */
   return (currentSession) => {
     if (currentSession.label === "Focusing") {
       return {
@@ -54,7 +33,6 @@ function nextSession(focusDuration, breakDuration) {
 }
 
 function Pomodoro() {
-  //State
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [session, setSession] = useState(null);
   const [elapsed, setElapsed] = useState(0);
@@ -63,7 +41,6 @@ function Pomodoro() {
   const [aria, setAria] = useState(0);
   const [breakLeft, setBreakLeft] = useState(0);
 
-  //Handlers
   const increaseFocusTime = () => {
     setFocusDuration((lastFocusDuration) =>
       Math.min(60, lastFocusDuration + 5)
@@ -108,25 +85,17 @@ function Pomodoro() {
     isTimerRunning ? 1000 : null
   );
 
-  //    setAriaValue(100*(focusTime * 60 - focusRun)/(focusTime*60))
-  //  }
-  //   else {setAriaValue(100*(breakTime * 60 - breakRun)/(breakTime*60))
-
   useInterval(() => {
     if (session && session.timeRemaining) {
       return setElapsed(elapsed + 1);
     }
   }, 1000);
-  /**
-   * Called whenever the play/pause button is clicked.
-   */
+
   function playPause() {
     setIsTimerRunning((prevState) => {
       const nextState = !prevState;
       if (nextState) {
         setSession((prevStateSession) => {
-          // If the timer is starting and the previous session is null,
-          // start a focusing session.
           if (prevStateSession === null) {
             return {
               label: "Focusing",
@@ -139,11 +108,6 @@ function Pomodoro() {
       return nextState;
     });
   }
-  //   console.log(session && Math.abs(session.timeRemaining -focusDuration*60), 'elapsed')
-  //   console.log(session && (focusDuration * 60 - session.timeRemaining)*.1)
-  //   console.log(focusDuration - elapsed)
-  //   console.log((session.label.toLowerCase().indexOf("ocus") > 0 ? focusDuration : breakDuration)*100)
-  //   console.log(session.timeRemaining/(session.label.toLowerCase().indexOf("ocus") > 0 ? focusDuration : breakDuration)*100)
 
   return (
     <div className="pomodoro">
